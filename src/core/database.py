@@ -7,12 +7,13 @@ from src.config.database_config import get_database_config
 
 load_dotenv()
 
-ENV = os.getenv("ENV", "dev").lower()
+ENV = os.getenv("ENV", "prod").lower()
 
 
 def get_database_url():
     config = get_database_config()
 
+    # ✅ Use Supabase URL directly if available
     if config.get("DATABASE_URL"):
         db_url = config["DATABASE_URL"]
 
@@ -21,8 +22,9 @@ def get_database_url():
 
         return db_url
 
+    # ✅ FIXED: use psycopg2 driver (not psycopg)
     return (
-        f"postgresql+psycopg://{config['username']}:"
+        f"postgresql://{config['username']}:"
         f"{config['password']}@{config['host']}:"
         f"{config['port']}/{config['database']}"
     )
@@ -30,6 +32,8 @@ def get_database_url():
 
 config = get_database_config()
 DATABASE_URL = get_database_url()
+
+print("🔗 DATABASE URL:", DATABASE_URL)  # debug log
 
 
 engine = create_engine(
