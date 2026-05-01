@@ -7,7 +7,7 @@ DATABASE_URLS = {
         "host": "localhost",
         "port": "5432",
         "database": "blog_db",
-        "DATABASE_URL": None  
+        "DATABASE_URL": None
     },
     "prod": {
         "username": "postgres",
@@ -23,11 +23,11 @@ COMMON_DATABASE_CONFIG = {
     "pool_pre_ping": True,
     "pool_size": 5,
     "max_overflow": 10,
-    "echo": False 
+    "echo": False
 }
 
 
-def get_database_config(): 
+def get_database_config():
     ENV = os.getenv("ENV", "prod").lower()
 
     env_config = DATABASE_URLS.get(ENV, DATABASE_URLS["dev"])
@@ -40,8 +40,5 @@ def get_database_config():
     config["port"] = os.getenv("DB_PORT", config["port"])
     config["database"] = os.getenv("DB_NAME", config["database"])
     config["DATABASE_URL"] = os.getenv("DATABASE_URL", config["DATABASE_URL"])
-
-    if ENV == "dev":
-        config["echo"] = False
 
     return config

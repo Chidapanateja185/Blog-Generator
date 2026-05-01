@@ -2,10 +2,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from src.core.database import init_db
 from src.router.routes import api_router as main_router
-
 import os
 
-from src import models    
+from src import models
 
 app = FastAPI(
     title="Blog Generation API",
@@ -30,9 +29,9 @@ app.include_router(main_router)
 @app.on_event("startup")
 def on_startup():
     print("🚀 Starting application...")
+    print("ENV:", os.getenv("ENV"))
 
     try:
-        # Only initialize DB in dev (safe for Cloud Run)
         if os.getenv("ENV", "prod") == "dev":
             init_db()
             print("✅ Database initialized (DEV mode)")
@@ -40,7 +39,6 @@ def on_startup():
             print("⚡ Skipping DB init in PROD")
 
     except Exception as e:
-        # IMPORTANT: do NOT crash container
         print("❌ DB initialization failed:", str(e))
 
 
