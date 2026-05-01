@@ -22,6 +22,7 @@ class Users(Base):
     password = Column(String, nullable=False)
     is_active = Column(Boolean, default=True)
     role = Column(Enum(Role), nullable=False)  
-    
+    refresh_token = Column(String)
+
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

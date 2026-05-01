@@ -1,60 +1,41 @@
+from jose import JWTError, jwt
 from sqlalchemy.orm import Session
-from src.models.users import Users
-from src.core.security import hashpassword
-from src.schemas.auth import RegisterRequest
 from fastapi.responses import JSONResponse
+from fastapi import status
+from src.models.users import Users
+from src.schemas.auth import LoginRequest, LoginResponse, RegisterRequest
+from src.core.security import (
+    hashpassword,
+    verify_password,
+    create_access_token,
+    create_refresh_token,
+    SECRET_KEY,
+    ALGORITHM
+)
 
 
 class AuthenticationService:
 
-    def __init__(self, db_session: Session):
-        self.db = db_session
+    def __init__(self, db: Session):
+        self.db = db
 
-    async def register_user(self, signup_req: RegisterRequest):
+    async def register_user(self, req: RegisterRequest):
 
-        if signup_req.password != signup_req.conform_password:
-            return JSONResponse(
-                status_code=400,
-                content={
-                    "Status code": 404,
-                    "message": "Passwords do not match"
-                    }
-            )
+        if req.password != req.conform_password:
+            return JSONResponse(status_code=400, content={"message": "Passwords do not match"})
 
-        existing_email = self.db.query(Users).filter(
-            Users.email == signup_req.email
-        ).first()
+        if self.db.query(Users).filter(Users.email == req.email).first():
+            return JSONResponse(status_code=400, content={"message": "Email already exists"})
 
-        if existing_email:
-            return JSONResponse(
-                status_code=400,
-                content={
-                    "Status code": 400,
-                    "Email": signup_req.email,
-                    "message": "Email already exists"
-                    }
-            )
-
-        existing_mobile = self.db.query(Users).filter(
-            Users.mobile == signup_req.mobile
-        ).first()
-
-        if existing_mobile:
-            return JSONResponse(
-                status_code=400,
-                content={
-                    "Status code": 400,
-                    "mobile": signup_req.mobile,
-                    "message": "Mobile number already exists"
-                }
-            )
+        if self.db.query(Users).filter(Users.mobile == req.mobile).first():
+            return JSONResponse(status_code=400, content={"message": "Mobile already exists"})
 
         user = Users(
-            firstName=signup_req.first_name,
-            lastName=signup_req.last_name,
-            email=signup_req.email,
-            mobile=signup_req.mobile,
-            password=hashpassword(signup_req.password),
+            firstName=req.first_name,
+            lastName=req.last_name,
+            email=req.email,
+            mobile=req.mobile,
+            password=hashpassword(req.password),
             role="USER"
         )
 
@@ -72,4 +53,87 @@ class AuthenticationService:
                 "mobile": user.mobile,
                 "role": user.role
             }
+        }
+
+
+    async def login_user(self, login_req: LoginRequest) -> LoginResponse:
+
+        user = self.db.query(Users).filter(
+            Users.email == login_req.email
+        ).first()
+
+        if not user or not verify_password(login_req.password, user.password):
+            return JSONResponse(
+                status_code=401,
+                content={"message": "Invalid email or password"}
+            )
+
+        payload = {
+            "user_id": str(user.id),
+            "email": user.email,
+            "role": user.role.value,
+            "firstName": user.firstName,
+            "lastName": user.lastName
+        }
+
+        access_token = create_access_token(payload)
+        refresh_token = create_refresh_token(payload)
+
+
+        user.refresh_token = refresh_token
+        self.db.commit()
+
+        return LoginResponse(
+            message="Login successful",
+            access_token=access_token,
+            refresh_token=refresh_token,
+            token_type="bearer"
+        )
+    
+
+    async def refresh_access_token(self, token_data: dict):
+
+        try:
+            if token_data.get("type") != "refresh":
+                return JSONResponse(status_code=401, content={"message": "Invalid token"})
+
+            user = self.db.query(Users).filter(
+                Users.id == token_data.get("user_id")
+            ).first()
+
+            if not user:
+                return JSONResponse(status_code=401, content={"message": "User not found"})
+
+            if user.refresh_token != token_data.get("raw"):
+                return JSONResponse(status_code=401, content={"message": "Token mismatch"})
+
+            payload = {
+                "user_id": str(user.id),
+                "email": user.email,
+                "role": user.role.value,
+                "firstName": user.firstName,
+                "lastName": user.lastName
+            }
+
+            new_access_token = create_access_token(payload)
+
+            return {
+                "access_token": new_access_token,
+                "token_type": "bearer"
+            }
+
+        except JWTError:
+            return JSONResponse(status_code=401, content={"message": "Invalid token"})
+
+    async def logout(self, user_id):
+
+        user = self.db.query(Users).filter(Users.id == user_id).first()
+
+        if user:
+            user.refresh_token = None
+            self.db.commit()
+
+        return {
+            "Status code" : status.HTTP_200_OK,
+            "message": "Logged out successfully"
         }
