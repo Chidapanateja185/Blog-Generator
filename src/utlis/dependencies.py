@@ -69,7 +69,12 @@ class RoleChecker:
 
     def __call__(self, user: Users = Depends(get_current_user)):
 
-        if user.role.value not in self.roles:
+        if not user.role:
+            raise InsufficientPermission()
+
+        user_role = user.role.value if hasattr(user.role, "value") else str(user.role)
+
+        if user_role not in self.roles:
             raise InsufficientPermission()
 
         return user
