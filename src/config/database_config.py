@@ -15,14 +15,16 @@ DATABASE_URLS = {
         "host": "db.xxxxxx.supabase.co",
         "port": "5432",
         "database": "postgres",
-        "DATABASE_URL": "postgresql://postgres.btkuwlrezzatyimpsfxa:nsLeFYCpw9AEeVB4@aws-1-ap-southeast-1.pooler.supabase.com:6543/postgres?sslmode=require"
+        "DATABASE_URL": "postgresql://neondb_owner:npg_rYiWdOV56Jbn@ep-aged-violet-a4um97tc-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
     }
 }
 
+#postgresql://postgres.btkuwlrezzatyimpsfxa:nsLeFYCpw9AEeVB4@aws-1-ap-southeast-1.pooler.supabase.com:6543/postgres?sslmode=require
+
 COMMON_DATABASE_CONFIG = {
     "pool_pre_ping": True,
-    "pool_size": 5,
-    "max_overflow": 10,
+    "pool_size": 2,
+    "max_overflow": 5,
     "echo": False
 }
 
