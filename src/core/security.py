@@ -65,11 +65,11 @@ def decode_token(token: str) -> dict:
     except ExpiredSignatureError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token has expired"
+            detail="TOKEN_EXPIRED" 
         )
 
     except JWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token"
+            detail="INVALID_TOKEN"
         )
