@@ -12,36 +12,18 @@ load_dotenv()
 ENV = os.getenv("ENV", "prod").lower()
 
 
-# def get_database_url():
-#     config = get_database_config()
-
-#     if config.get("DATABASE_URL"):
-#         db_url = config["DATABASE_URL"]
-
-#         # if "sslmode" not in db_url:
-#         #     db_url += "?sslmode=require"
-
-#         return db_url
-
-#     return (
-#         f"postgresql://{config['username']}:"
-#         f"{config['password']}@{config['host']}:"
-#         f"{config['port']}/{config['database']}"
-#     )
-
-
 def get_database_url():
     config = get_database_config()
     db_url = config.get("DATABASE_URL")
 
-    if not db_url:
-        raise ValueError("DATABASE_URL must be set for production")
+    if db_url:
+        return db_url
 
-    url = urlparse(db_url)
-    query = dict(parse_qsl(url.query))
-    query.setdefault("sslmode", "require")
+    return (
+        f"postgresql://{config['username']}:{config['password']}"
+        f"@{config['host']}:{config['port']}/{config['database']}"
+    )
 
-    return urlunparse(url._replace(query=urlencode(query)))
 
 
 config = get_database_config()

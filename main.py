@@ -31,42 +31,26 @@ app.add_middleware(
 app.include_router(main_router)
 
 
-# @app.on_event("startup")
-# def on_startup():
-#     print("🚀 Starting application...")
-#     print("ENV:", os.getenv("ENV"))
-#     ENV = os.getenv("ENV", "prod").lower()
-#     print("ENV:", ENV)
-
-
-#     try:
-#         if os.getenv("ENV", "prod").lower() == "dev":
-#             init_db()
-#             print("✅ Database initialized (DEV mode)")
-#         else:
-#             print("⚡ Skipping DB init in PROD")
-
-#     except Exception as e:
-#         print("❌ DB initialization failed:", str(e))
-
 @app.on_event("startup")
 def on_startup():
-    ENV = os.getenv("ENV", "prod").lower()
-
     print("🚀 Starting application...")
+    ENV = os.getenv("ENV", "prod").lower()
     print("ENV:", ENV)
 
     try:
-        with engine.connect() as conn:
-            conn.execute(text("SELECT 1"))
-        print("✅ Database connected successfully")
-
-        print("⚡ Checking/creating tables...")
-        init_db()
-        print("✅ Tables created (if not exists)")
+        if os.getenv("ENV", "prod").lower() == "dev":
+            init_db()
+            print("✅ Database initialized (DEV mode)")
+        else:
+            with engine.connect() as conn:
+                conn.execute(text("SELECT 1"))
+                init_db()
+                print("✅ Database connected successfully")
+                print("⚡ Checking/creating tables...")
+                print("✅ Tables created (if not exists)")
 
     except Exception as e:
-        print("❌ Startup failed:", str(e))
+        print("❌ DB initialization failed:", str(e))
 
 
 @app.get("/")
