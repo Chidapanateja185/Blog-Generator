@@ -1,9 +1,14 @@
+from urllib import response
+
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 from fastapi.responses import JSONResponse
 from fastapi import status
+from datetime import datetime, timedelta
+
 from src.models.users import Users
 from src.schemas.auth import LoginRequest, LoginResponse, RegisterRequest
+from src.services.email_service import EmailPayload, EmailService
 from src.core.security import (
     hashpassword,
     verify_password,
@@ -39,6 +44,20 @@ class AuthenticationService:
             role="USER"
         )
 
+        service = EmailService()
+        response = await service.send_email(
+            EmailPayload(
+                email_type="welcome",
+                to_email=req.email,
+                subject="Welcome to BlogCraft!",
+                payload={
+                    "first_name": req.first_name,
+                    "last_name": req.last_name,
+                    "year": datetime.now().year
+                }
+            )
+        )
+
         self.db.add(user)
         self.db.commit()
         self.db.refresh(user)
@@ -51,7 +70,8 @@ class AuthenticationService:
                 "lastName": user.lastName,
                 "email": user.email,
                 "mobile": user.mobile,
-                "role": user.role
+                "role": user.role,
+                "Email sent status" : response.get("success"),
             }
         }
 
