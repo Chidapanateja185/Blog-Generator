@@ -24,8 +24,12 @@ class EmailService:
 
     def __init__(self):
         
-        self.api_key = get_env_value("BREVO_API_KEY", os.getenv("BREVO_API_KEY"))
-        self.from_email = get_env_value("FROM_EMAIL", os.getenv("FROM_EMAIL"))
+        # self.api_key = get_env_value("BREVO_API_KEY", os.getenv("BREVO_API_KEY"))
+        # self.from_email = get_env_value("FROM_EMAIL", os.getenv("FROM_EMAIL"))
+        
+        self.api_key = os.getenv("BREVO_API_KEY")
+        self.from_email = os.getenv("FROM_EMAIL")
+
         self.template_env = Environment(
             loader=FileSystemLoader(
                 "src/services/templates"
