@@ -1,3 +1,6 @@
-RESEND_API_KEY = "re_Q7ESWBhR_75C7Wu6GmZNNmttcxmg9uZky"
-FROM_EMAIL ="onboarding@resend.dev"
-TO_EMAIL = "chidapanateja123@gmail.com"
+# DEV
+DB_USERNAME=postgres
+DB_PASSWORD=root
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=blog_db

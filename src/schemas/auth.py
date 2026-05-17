@@ -7,6 +7,7 @@ class RegisterRequest(BaseModel):
     mobile: str
     password: str
     conform_password: str
+    fcm_token: str | None = None
 
 class LoginRequest(BaseModel):
     email: EmailStr

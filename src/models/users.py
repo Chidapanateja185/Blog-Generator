@@ -23,6 +23,7 @@ class Users(Base):
     is_active = Column(Boolean, default=True)
     role = Column(Enum(Role), nullable=False)  
     refresh_token = Column(String)
+    fcm_token = Column(String, nullable=True)
 
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

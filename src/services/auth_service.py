@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 
 from src.models.users import Users
 from src.schemas.auth import LoginRequest, LoginResponse, RegisterRequest
+from src.services.notification_service import PushNotificationService
 from src.services.email_service import EmailPayload, EmailService
 from src.core.security import (
     hashpassword,
@@ -17,7 +18,6 @@ from src.core.security import (
     SECRET_KEY,
     ALGORITHM
 )
-
 
 class AuthenticationService:
 
@@ -41,9 +41,11 @@ class AuthenticationService:
             email=req.email,
             mobile=req.mobile,
             password=hashpassword(req.password),
-            role="USER"
+            role="USER",
+            fcm_token=req.fcm_token
         )
 
+        # Send an Email
         service = EmailService()
         response = await service.send_email(
             EmailPayload(
@@ -57,6 +59,20 @@ class AuthenticationService:
                 }
             )
         )
+
+        # Push Notification
+        push_response = None
+        if user.fcm_token:
+            push_service = (PushNotificationService())
+            push_response = await (
+                push_service.send_notification(
+                    token=user.fcm_token,
+                    title="Welcome to BlogCraft 🎉",
+                    body=(
+                        "Your account was created successfully"
+                    )
+                )
+            )
 
         self.db.add(user)
         self.db.commit()
@@ -72,6 +88,7 @@ class AuthenticationService:
                 "mobile": user.mobile,
                 "role": user.role,
                 "Email sent status" : response.get("success"),
+                "push_sent": push_response.get("success") if push_response else None
             }
         }
 

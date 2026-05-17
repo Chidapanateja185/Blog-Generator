@@ -10,6 +10,8 @@ from sqlalchemy import text
 from src.core.database import engine
 
 from src import models
+from src.config.firebase_config import *
+
 
 app = FastAPI(
     title="Blog Generation API",
@@ -51,11 +53,6 @@ def on_startup():
 
     except Exception as e:
         print("❌ DB initialization failed:", str(e))
-
-
-@app.get("/")
-def root():
-    return {"status": "ok"}
 
 
 @app.get("/health")
