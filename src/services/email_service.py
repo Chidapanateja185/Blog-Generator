@@ -42,6 +42,9 @@ class EmailService:
 
             # Render HTML
             html_content = template.render(**email_payload.payload)
+            
+            print("BREVO_API_KEY:", self.api_key)
+            print("FROM_EMAIL:", self.from_email)
 
             # Brevo API request
             response = requests.post(
