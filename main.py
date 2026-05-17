@@ -55,6 +55,7 @@ def on_startup():
         print("❌ DB initialization failed:", str(e))
 
 
+
 @app.get("/health")
 def health():
     return {"message": "🚀 Blog Generation API is running"}
