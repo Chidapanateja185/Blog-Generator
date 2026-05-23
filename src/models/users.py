@@ -24,6 +24,9 @@ class Users(Base):
     role = Column(Enum(Role), nullable=False)  
     refresh_token = Column(String)
     fcm_token = Column(String, nullable=True)
+    email_otp = Column(String)
+    expires_at = Column(DateTime)
+    email_otp_created_at = Column(DateTime, default=datetime.utcnow)
 
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

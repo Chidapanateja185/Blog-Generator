@@ -1,6 +1,6 @@
 # DEV
-DB_USERNAME=postgres
-DB_PASSWORD=root
-DB_HOST=localhost
+DB_USERNAME="postgres"
+DB_PASSWORD="root"
+DB_HOST="localhost"
 DB_PORT=5432
-DB_NAME=blog_db
+DB_NAME="blog_db"

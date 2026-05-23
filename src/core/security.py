@@ -10,6 +10,8 @@ ALGORITHM = "HS256"
 
 ACCESS_TOKEN_EXPIRE_MINUTES = 15
 REFRESH_TOKEN_EXPIRE_DAYS = 7
+PASSWORD_RESET_TOKEN_EXPIRE_MINUTES = 10
+
 
 
 def hashpassword(password: str) -> str:
@@ -73,3 +75,24 @@ def decode_token(token: str) -> dict:
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="INVALID_TOKEN"
         )
+
+def create_password_reset_token(data: dict):
+
+    to_encode = data.copy()
+
+    expire = (
+        datetime.now(timezone.utc)
+        + timedelta(minutes=PASSWORD_RESET_TOKEN_EXPIRE_MINUTES)
+    )
+
+    to_encode.update({
+        "exp": expire,
+        "type": "password_reset",
+        "iat": datetime.now(timezone.utc)
+    })
+
+    return jwt.encode(
+        to_encode,
+        SECRET_KEY,
+        algorithm=ALGORITHM
+    )
