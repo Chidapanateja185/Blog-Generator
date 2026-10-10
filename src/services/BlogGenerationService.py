@@ -42,6 +42,9 @@ class BlogGenerationService:
         logger.info("GENAI_API_KEY found successfully.")
 
         self.client = genai.Client(api_key=self.api_key)
+        
+        # for m in self.client.models.list():
+        #     print("Available Model: %s -> %s", m.name, m.supported_actions)
 
         logger.info("Gemini client initialized successfully.")
 
@@ -94,7 +97,7 @@ class BlogGenerationService:
             start = time.time()
 
             response = self.client.models.generate_content(
-                model="gemini-2.5-flash",
+                model="gemini-3.8-flash",
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     response_mime_type="application/json",
